@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Demo Project - Workitem Tracker</title>
+    
+    <script>
+        var server = "http://127.0.0.1:1338/";
+        
+        function exit() {
+            var xhttp = new XMLHttpRequest();
+            xhttp.open("POST", server + "exit", false);
+            xhttp.send();
+        }
+        
+        function expandInfoForName(name, info) {
+            var nnode = document.getElementById('tasklist');
+            nnode.innerHTML = info;
+        }
+        
+        function getUserDetail(name) {
+            var start = new Date();
+            
+            var nnode = document.getElementById(name);
+            if(nnode.dataset.expanded !== 'true') {
+                nnode.dataset.expanded = 'true';
+                
+                var xhttp = new XMLHttpRequest();
+                xhttp.onreadystatechange = function () {
+                    var DONE = this.DONE || 4;
+                    if (this.readyState === DONE) {
+                        nnode.dataset.response = this.responseText;
+                        expandInfoForName(name, this.responseText);
+                        
+                        console.log("Elapsed: " + (new Date() - start));
+                    }
+                };
+                
+                xhttp.open("GET", server + name);
+                xhttp.send();
+            }
+            else {
+                if(nnode.dataset.response) {
+                    expandInfoForName(name, nnode.dataset.response);
+                }
+            }
+        }
+    </script>
+    <style>
+        .taskListItem{
+            font-size: 14pt;
+            color: black;          
+        }
+        .task-summary{
+            font-size: 14pt;
+            color: black;
+            font-weight: 600;
+            padding-left:5px;
+       }
+        .task-summary+Infinity{
+            font-size: 14pt;
+            color: orangered;
+            font-weight: 600;
+            padding-left:5px;
+       }
+       #userTaskList {
+            list-style-type: none;
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            background-color: #333;
+        }
+
+        #userTaskList li {
+            float: left;
+        }
+
+        #userTaskList li a {
+            display: block;
+            color: white;
+            text-align: center;
+            padding: 14px 16px;
+            text-decoration: none;
+        }
+        #userTaskList a:hover:not(.active) {
+            background-color: #111;
+        }
+        .active {
+        background-color:#4CAF50;
+        }
+        .title {	
+            padding-left:5px
+        }
+
+        #userTaskList {	
+            font-size: 16px;
+            font-weight: 500;
+            padding-left:5px
+        }
+        #header {	
+            background-color: #4dd87b;
+            color: white;
+            border: none;
+            font-size: 24px;
+            font-weight: 600;
+            padding-left:5px;
+            font-family: "Segoe UI", "Trebuchet MS", sans-serif;
+            padding: 5px;
+        }
+
+        body{
+            margin-top: 20px; margin-bottom: 0px; margin-left: 2px; margin-right: 2px;
+            padding: 0;
+            color: black; font-size: 10pt; 
+            font-family: "Calibiri", "Trebuchet MS", sans-serif;
+            background-color: #E2E2E2;
+        }
+            
+        div.mainContainer{
+            height: auto; width: auto;
+            background-color: #FFFFFF;
+            margin-left: 5em	; margin-right: 5em;
+            padding: 0;
+        }
+   </style>
+    
+</head>
+
+<body>
+<div class="mainContainer">
+    <div id="header">Project TTD</div>
+    <i> Time Travel Debugging with Node-ChakraCore</i>
+    <h2 class="title"> Tasks outstanding: %TOTALCOUNT% <br> Days remaining in current sprint: %DAYS%</h2>
+    <ul id="userTaskList">%USERLIST%</ul>
+    <div id="tasklist"></div>
+</div>
+</body>
+</html>
